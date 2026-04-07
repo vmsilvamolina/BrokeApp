@@ -13,21 +13,24 @@ Se te ha entregado un repositorio con una aplicación web simple y un pipeline d
 El pipeline actual tiene los siguientes componentes, pero ninguno funciona correctamente:
 
 ### 1. Integración Continua
-- [  ] El workflow no se activa correctamente con push y pull requests sobre la rama main
-- [x] ~~Faltan los permisos para poder ejecutar el build y publish a  GitHub Container Registry~~
-- [  ] Python se encuentra actualizado
-- [  ] Revisar la configuración de pytest
+
+- [x] ~~Faltan los permisos para poder ejecutar el build y publish a GitHub Container Registry~~
+- [  ] Versión de Python incorrecta
+- [  ] Nombre del archivo de dependencias incorrecto
+- [  ] Directorio de tests incorrecto
 
 ### 2. Docker
-- [  ] Imagen de Python con vulnerabilidades
-- [  ] Revisar copia de requirements.txt
+
+- [  ] Revisar ruta de copia de requirements.txt
 - [  ] Corregir error al ejecutar la aplicación
 
 ### 3. APP
-- [  ] Confirmar puerto por defecto de Flask
-- [  ] Los mensajes deben ser en inglés
+
+- [  ] Nombre del endpoint de check incorrecto
+- [  ] Valor de respuesta incorrecto
 
 ### 4. TEST
+
 - [  ] Solucionar comportamiento del test
 
 ## Estructura del repositorio
@@ -57,11 +60,9 @@ Recibirás puntos por cada problema que identifiques y corrijas correctamente.
 ## Entrega
 
 Para completar el ejercicio:
-1. Acepta la asignación a través del enlace proporcionado
-2. Clona el repositorio generado
-3. Identifica y corrige todos los problemas en:
-   - El archivo de workflow (.github/workflows/ci-cd.yml)
-4. Haz commit y push de tus cambios
-5. Verifica que el pipeline funcione correctamente en la pestaña "Actions"
+1. Clona el repositorio generado
+2. Identifica y corrige todos los problemas en los diferentes archivos del repo
+3. Haz commit y push de tus cambios
+4. Verifica que el pipeline funcione correctamente en la pestaña "Actions"
 
 ¡Buena suerte!
