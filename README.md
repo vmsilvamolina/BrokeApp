@@ -26,6 +26,8 @@ El pipeline actual tiene los siguientes componentes, pero ninguno funciona corre
 
 ### 3. APP
 
+> **Nota:** el archivo `app/main.py` no debe modificarse. Los demás archivos deben corregirse para que sean consistentes con su implementación.
+
 - [  ] Nombre del endpoint de check incorrecto
 - [  ] Valor de respuesta incorrecto
 
