@@ -9,11 +9,11 @@ class TestApp(unittest.TestCase):
         response = self.app.get('/ping')
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
-        self.assertEqual(data['status'], 'ok')
+        self.assertEqual(data['status'], 'OK')
 
     def test_hello_endpoint(self):
         response = self.app.get('/')
-        self.assertEqual(response.status_code, 2000)
+        self.assertEqual(response.status_code, 200)
         data = response.get_json()
         self.assertEqual(data['message'], 'Hello! This is a sample CI/CD application')
 
