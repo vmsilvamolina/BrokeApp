@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   test:
-    name: Test Application
+    name: Test
     runs-on: ubuntu-latest
 
     steps:
@@ -33,23 +33,25 @@ jobs:
         python -m pytest app/
         
   build:
-    name: Build Docker Image
+    name: Build
     runs-on: ubuntu-latest
     needs: test
-    
+    outputs:
+      image: ${{ steps.image.outputs.tag }}
+
     steps:
-    - uses: actions/checkout@v6 
-    
+    - uses: actions/checkout@v6
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v4
-      
+
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v4
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-        
+
     - name: Extract metadata
       id: meta
       uses: docker/metadata-action@v6
@@ -58,7 +60,7 @@ jobs:
         tags: |
           type=sha,prefix=
           type=ref,event=branch
-          
+
     - name: Build and push
       uses: docker/build-push-action@v7
       with:
@@ -66,23 +68,51 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        
-  deploy:
-    name: Deploy Application
+
+    - name: Save image tag
+      id: image
+      run: echo "tag=$(echo '${{ steps.meta.outputs.tags }}' | head -1)" >> $GITHUB_OUTPUT
+
+  validate:
+    name: Validate
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
-    environment:
-      name: production
-      url: https://example.com
-      
+    if: github.event_name != 'pull_request'
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v6
-      
-    - name: Deploy to production
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v4
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Pull image
+      run: docker pull ${{ needs.build.outputs.image }}
+
+    - name: Start container
+      run: docker run -d -p 5000:5000 --name app ${{ needs.build.outputs.image }}
+
+    - name: Wait for app to be ready
       run: |
-        echo "Simulando despliegue a producción"
-        echo "En un escenario real, aquí se usaría un secreto como ${{ secrets.DEPLOY_TOKEN }}"
-        echo "para conectarse al servidor de producción y desplegar la aplicación"
+        for i in $(seq 1 10); do
+          curl -sf http://localhost:5000/ping && break
+          echo "Attempt $i failed, retrying..."
+          sleep 2
+        done
+
+    - name: Validate /ping endpoint
+      run: |
+        response=$(curl -sf http://localhost:5000/ping)
+        echo "Response: $response"
+        echo "$response" | grep '"status": "ok"'
+
+    - name: Validate / endpoint
+      run: |
+        response=$(curl -sf http://localhost:5000/)
+        echo "Response: $response"
+        echo "$response" | grep '"message"'
+
+    - name: Show container logs on failure
+      if: failure()
+      run: docker logs app

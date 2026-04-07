@@ -14,7 +14,7 @@ El pipeline actual tiene los siguientes componentes, pero ninguno funciona corre
 
 ### 1. Integración Continua
 - [  ] El workflow no se activa correctamente con push y pull requests sobre la rama main
-- [  ] Faltan los permisos para poder ejecutar el build y publish a  GitHub Container Registry (*)
+- [x] ~~Faltan los permisos para poder ejecutar el build y publish a  GitHub Container Registry~~
 - [  ] Python se encuentra actualizado
 - [  ] Revisar la configuración de pytest
 
