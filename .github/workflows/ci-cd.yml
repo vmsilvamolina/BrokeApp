@@ -96,14 +96,14 @@ jobs:
     - name: Wait for app to be ready
       run: |
         for i in $(seq 1 10); do
-          curl -sf http://localhost:5000/ping && break
+          curl -sf http://localhost:5000/health && break
           echo "Attempt $i failed, retrying..."
           sleep 2
         done
 
     - name: Validate /ping endpoint
       run: |
-        response=$(curl -sf http://localhost:5000/ping)
+        response=$(curl -sf http://localhost:5000/health)
         echo "Response: $response"
         echo "$response" | grep '"status": "ok"'
 
