@@ -1,0 +1,88 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  test:
+    name: Test Application
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Test with pytest
+      run: |
+        python -m pytest app/
+        
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v6 
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+      
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v4
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v6
+      with:
+        images: ghcr.io/${{ github.repository }}
+        tags: |
+          type=sha,prefix=
+          type=ref,event=branch
+          
+    - name: Build and push
+      uses: docker/build-push-action@v7
+      with:
+        context: .
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    environment:
+      name: production
+      url: https://example.com
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+      
+    - name: Deploy to production
+      run: |
+        echo "Simulando despliegue a producción"
+        echo "En un escenario real, aquí se usaría un secreto como ${{ secrets.DEPLOY_TOKEN }}"
+        echo "para conectarse al servidor de producción y desplegar la aplicación"
